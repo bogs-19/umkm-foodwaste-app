@@ -40,12 +40,13 @@ const MainLayout = () => {
 
                 {/* Top App Bar (Mobile & Tablet) */}
                 <header className="sticky top-0 bg-white/80 backdrop-blur-md border-b border-gray-100 z-30 px-4 py-3 flex justify-between items-center md:hidden">
-                    <button className="p-2 text-gray-600 hover:bg-[#A7D189] hover:text-white rounded-full transition-colors">
-                        <User size={24} />
-                    </button>
+
+                    {/* Tombol Akun/Profil yang sudah aktif */}
+                    <Link to="/settings" className="p-2 text-gray-600 hover:bg-[#A7D189] hover:text-white rounded-full transition-colors bg-green-50">
+                        <User size={24} className="text-[#1A361D]" />
+                    </Link>
 
                     <h1 className="text-lg font-semibold text-gray-800">{getPageTitle()}</h1>
-
                     {/* 3. Tombol Hamburger dengan event onClick untuk membuka menu */}
                     <button
                         onClick={() => setIsMenuOpen(true)}

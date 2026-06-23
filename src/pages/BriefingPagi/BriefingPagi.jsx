@@ -1,6 +1,5 @@
 import React, { useState } from 'react';
 import TinderCard from 'react-tinder-card';
-// 1. Tambahkan import ikon CheckCircle untuk layar selesai
 import { Search, CheckCircle } from 'lucide-react';
 import { dummyInventory } from '../../data/dummyInventory';
 
@@ -8,7 +7,6 @@ const BriefingPagi = () => {
     const [bahan, setBahan] = useState(dummyInventory);
     const [searchQuery, setSearchQuery] = useState('');
 
-    // 2. Tambahkan state untuk melacak sisa kartu
     const [cardsLeft, setCardsLeft] = useState(dummyInventory.length);
 
     const swiped = (direction, nameToDelete) => {
@@ -17,7 +15,6 @@ const BriefingPagi = () => {
 
     const outOfFrame = (name) => {
         console.log(name + ' telah keluar dari layar!');
-        // 3. Kurangi jumlah sisa kartu setiap kali kartu keluar layar
         setCardsLeft((prev) => prev - 1);
     };
 
@@ -39,7 +36,6 @@ const BriefingPagi = () => {
 
             <div className="flex-1 relative flex justify-center items-center w-full min-h-[420px]">
 
-                {/* 4. Logika Zero State: Tampilkan ini JIKA kartu habis (cardsLeft === 0) */}
                 {cardsLeft === 0 && (
                     <div className="flex flex-col items-center justify-center text-center animate-fade-in">
                         <div className="w-24 h-24 bg-green-100 rounded-full flex justify-center items-center mb-6 shadow-inner">
@@ -52,7 +48,6 @@ const BriefingPagi = () => {
                     </div>
                 )}
 
-                {/* Render tumpukan kartu seperti biasa */}
                 {bahan.map((item) => (
                     <TinderCard
                         className="absolute"
@@ -77,7 +72,6 @@ const BriefingPagi = () => {
                 ))}
             </div>
 
-            {/* Sembunyikan petunjuk arah jika kartu sudah habis */}
             {cardsLeft > 0 && (
                 <div className="flex-none mt-auto pt-8 flex justify-between px-8 text-sm font-bold text-gray-400 z-10 transition-opacity">
                     <div className="flex flex-col items-center">

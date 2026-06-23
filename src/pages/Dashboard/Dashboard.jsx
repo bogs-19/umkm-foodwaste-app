@@ -50,7 +50,7 @@ const Dashboard = () => {
                             {/* Tombol Aksi Cepat (Shortcut Promo) */}
                             <div className="mt-4">
                                 <button
-                                    onClick={() => navigate('/promo')}
+                                    onClick={() => navigate('/eksekusi-promo')}
                                     className="bg-red-600 text-white px-4 py-2 rounded-lg text-sm font-bold shadow-md hover:bg-red-700 transition-colors flex items-center gap-2"
                                 >
                                     <Tag size={16} />
