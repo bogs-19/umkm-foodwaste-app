@@ -8,6 +8,9 @@ importers:
 
   .:
     dependencies:
+      '@react-spring/web':
+        specifier: ^10.1.1
+        version: 10.1.1(react-dom@19.2.7(react@19.2.7))(react@19.2.7)
       chart.js:
         specifier: ^4.5.1
         version: 4.5.1
@@ -31,7 +34,7 @@ importers:
         version: 7.18.0(react-dom@19.2.7(react@19.2.7))(react@19.2.7)
       react-tinder-card:
         specifier: ^1.6.4
-        version: 1.6.4(react@19.2.7)
+        version: 1.6.4(@react-spring/web@10.1.1(react-dom@19.2.7(react@19.2.7))(react@19.2.7))(react@19.2.7)
     devDependencies:
       '@eslint/js':
         specifier: ^10.0.1
@@ -241,6 +244,33 @@ packages:
 
   '@oxc-project/types@0.133.0':
     resolution: {integrity: sha512-KzkdCd6Uxqnf6l3HOw1xfatAlUURA0g14cvBYFyJ5SaNOQbOUvBr9PKArcPcrNIeRsBdgcUzOGrhKveVpvOIGA==}
+
+  '@react-spring/animated@10.1.1':
+    resolution: {integrity: sha512-kqdtIzr1GfBmbojnYhNdEhgu23f1rQ9H98K6KGmWHpNBP0gGZWN8KEIzGYwCAon7Q8ktGmsR1dCyy6QTI4egug==}
+    peerDependencies:
+      react: ^16.8.0 || ^17.0.0 || ^18.0.0 || ^19.0.0
+
+  '@react-spring/core@10.1.1':
+    resolution: {integrity: sha512-eCxEJuJzNxbfFXEr+BuMqp+LYv0fdvIO/lk6B+A/aUDxD4M4EBKizPqhCkMz/B+U12d99KTAUSmWaGul/Lly+w==}
+    peerDependencies:
+      react: ^16.8.0 || ^17.0.0 || ^18.0.0 || ^19.0.0
+
+  '@react-spring/rafz@10.1.1':
+    resolution: {integrity: sha512-F7n2fU8EO8OokBkUHivU/tJ9HnL/QTIgd8V/2BhHFSrszt+OaLUoqEinomNeedLPIs24skiXQtki4APJHxghDQ==}
+
+  '@react-spring/shared@10.1.1':
+    resolution: {integrity: sha512-pOoQPoOa+EPWrRndqIYlIms71fNB1p0IQVJcCi5xHtErqL8N0+jS1V9pExHfryqn9aUhHv0+7kMiVrcb6U+IBQ==}
+    peerDependencies:
+      react: ^16.8.0 || ^17.0.0 || ^18.0.0 || ^19.0.0
+
+  '@react-spring/types@10.1.1':
+    resolution: {integrity: sha512-C35b9XigBnwv1fZsUGR/lWzAKBskGhdAmf0LIBvqhwwHTYMtat4DXHZEnFyJQvfCAmpVc/d9Yug7j2Lbv2GDEA==}
+
+  '@react-spring/web@10.1.1':
+    resolution: {integrity: sha512-G8jVDH8YPAo9ALWio0YcpwvZjXIt6LFwSKZtS4XeTNWIMNUH+sTm2Uy8dxEobTqyzQ5kvKwnMfS3LsOpKrVOag==}
+    peerDependencies:
+      react: ^16.8.0 || ^17.0.0 || ^18.0.0 || ^19.0.0
+      react-dom: ^16.8.0 || ^17.0.0 || ^18.0.0 || ^19.0.0
 
   '@rolldown/binding-android-arm64@1.0.3':
     resolution: {integrity: sha512-454rs7jHngixp/NMxd5srYD57OnzSlZ/eFTETjORQHLwJG1lRtmNOJcBerZlfu4GjKqeq8aCCIQrMdHyhI51Hw==}
@@ -1318,6 +1348,39 @@ snapshots:
 
   '@oxc-project/types@0.133.0': {}
 
+  '@react-spring/animated@10.1.1(react@19.2.7)':
+    dependencies:
+      '@react-spring/shared': 10.1.1(react@19.2.7)
+      '@react-spring/types': 10.1.1
+      react: 19.2.7
+
+  '@react-spring/core@10.1.1(react@19.2.7)':
+    dependencies:
+      '@react-spring/animated': 10.1.1(react@19.2.7)
+      '@react-spring/shared': 10.1.1(react@19.2.7)
+      '@react-spring/types': 10.1.1
+      react: 19.2.7
+
+  '@react-spring/rafz@10.1.1': {}
+
+  '@react-spring/shared@10.1.1(react@19.2.7)':
+    dependencies:
+      '@react-spring/rafz': 10.1.1
+      '@react-spring/types': 10.1.1
+      react: 19.2.7
+
+  '@react-spring/types@10.1.1': {}
+
+  '@react-spring/web@10.1.1(react-dom@19.2.7(react@19.2.7))(react@19.2.7)':
+    dependencies:
+      '@react-spring/animated': 10.1.1(react@19.2.7)
+      '@react-spring/core': 10.1.1(react@19.2.7)
+      '@react-spring/shared': 10.1.1(react@19.2.7)
+      '@react-spring/types': 10.1.1
+      csstype: 3.2.3
+      react: 19.2.7
+      react-dom: 19.2.7(react@19.2.7)
+
   '@rolldown/binding-android-arm64@1.0.3':
     optional: true
 
@@ -1914,10 +1977,12 @@ snapshots:
     optionalDependencies:
       react-dom: 19.2.7(react@19.2.7)
 
-  react-tinder-card@1.6.4(react@19.2.7):
+  react-tinder-card@1.6.4(@react-spring/web@10.1.1(react-dom@19.2.7(react@19.2.7))(react@19.2.7))(react@19.2.7):
     dependencies:
       p-sleep: 1.1.0
       react: 19.2.7
+    optionalDependencies:
+      '@react-spring/web': 10.1.1(react-dom@19.2.7(react@19.2.7))(react@19.2.7)
 
   react@19.2.7: {}
 
