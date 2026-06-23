@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { AlertTriangle, TrendingUp, PackageCheck, Tag } from 'lucide-react';
 import { dummyInventory } from '../../data/dummyInventory';
+import { StatistikCard } from '../../components/Cards/StatistikCard';
 
 const Dashboard = () => {
     const navigate = useNavigate();
@@ -64,19 +65,18 @@ const Dashboard = () => {
 
             {/* 2. Statistik Ringkas (Widget) */}
             <div className="grid grid-cols-2 md:grid-cols-3 gap-4 mt-4">
-                <div className="bg-white p-5 rounded-2xl shadow-sm border border-gray-100 flex flex-col items-center justify-center text-center">
-                    <PackageCheck className="text-green-500 mb-2" size={32} />
-                    <p className="text-sm text-gray-500 font-medium">Total Stok Aman</p>
-                    <p className="text-2xl font-bold text-gray-800">
-                        {dummyInventory.filter(i => i.status === 'Aman').length} Item
-                    </p>
-                </div>
-
-                <div className="bg-white p-5 rounded-2xl shadow-sm border border-gray-100 flex flex-col items-center justify-center text-center">
-                    <TrendingUp className="text-blue-500 mb-2" size={32} />
-                    <p className="text-sm text-gray-500 font-medium">Food Waste Dicegah</p>
-                    <p className="text-2xl font-bold text-gray-800">60%</p>
-                </div>
+                <StatistikCard
+                    icon={<PackageCheck size={32} />}
+                    title="Total Stok Aman"
+                    value={`${dummyInventory.filter(i => i.status === 'Aman').length} Item`}
+                    colorClass="text-green-500"
+                />
+                <StatistikCard
+                    icon={<TrendingUp size={32} />}
+                    title="Food Waste Dicegah"
+                    value="60%"
+                    colorClass="text-blue-500"
+                />
             </div>
 
         </div>
