@@ -1,24 +1,86 @@
+import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Button } from "../../components/ui/Button";
-import { Input } from "../../components/ui/Input";
+import { Mail, Lock, User, Loader2 } from 'lucide-react';
 
 const Login = () => {
     const navigate = useNavigate();
 
-    const handleLogin = (e) => {
-        e.preventDefault(); 
+    // State Management
+    const [isLogin, setIsLogin] = useState(true);
+    const [isLoading, setIsLoading] = useState(false);
+    const [errorMsg, setErrorMsg] = useState('');
+    const [successMsg, setSuccessMsg] = useState('');
 
-        navigate('/dashboard');
+    const [formData, setFormData] = useState({
+        name: '',
+        email: '',
+        password: ''
+    });
+
+    const handleChange = (e) => {
+        setFormData({ ...formData, [e.target.name]: e.target.value });
+        setErrorMsg('');
     };
 
-    const handleSignUp = (e) => {
+    const toggleMode = () => {
+        setIsLogin(!isLogin);
+        setErrorMsg('');
+        setSuccessMsg('');
+        setFormData({ name: '', email: '', password: '' });
+    };
+
+    // Logika Submit (Terkoneksi API Asli)
+    const handleSubmit = async (e) => {
         e.preventDefault();
-        alert("Untuk prototipe Sprint ini, kita fokus ke alur Staf/Manajer dulu ya!");
+        setErrorMsg('');
+        setSuccessMsg('');
+
+        if (!formData.email || !formData.password || (!isLogin && !formData.name)) {
+            setErrorMsg('Harap isi semua kolom yang wajib.');
+            return;
+        }
+
+        setIsLoading(true);
+
+        try {
+            const endpoint = isLogin
+                ? 'http://localhost:5000/api/auth/login'
+                : 'http://localhost:5000/api/auth/register';
+
+            const response = await fetch(endpoint, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(formData)
+            });
+
+            const data = await response.json();
+
+            if (!response.ok) {
+                throw new Error(data.message || "Terjadi kesalahan");
+            }
+
+            if (isLogin) {
+                // Simpan token ke localStorage
+                localStorage.setItem('umkm_token', data.token);
+                localStorage.setItem('umkm_user', JSON.stringify(data.user));
+
+                navigate('/dashboard');
+            } else {
+                setSuccessMsg(data.message);
+                setIsLogin(true);
+                setFormData({ name: '', email: formData.email, password: '' });
+            }
+
+        } catch (error) {
+            setErrorMsg(error.message);
+        } finally {
+            setIsLoading(false);
+        }
     };
 
     return (
         <div className="min-h-screen flex w-full bg-white">
-            {/* BAGIAN KIRI: Ilustrasi (Sembunyi di Mobile) */}
+            {/* BAGIAN KIRI: Ilustrasi */}
             <div className="hidden lg:flex w-1/2 bg-[#0B1528] relative overflow-hidden items-center justify-center">
                 <img
                     src="https://images.unsplash.com/photo-1542838132-92c53300491e?q=80&w=1974&auto=format&fit=crop"
@@ -31,53 +93,111 @@ const Login = () => {
                 </div>
             </div>
 
-            {/* BAGIAN KANAN: Form Login */}
+            {/* BAGIAN KANAN: Form Dinamis */}
             <div className="w-full lg:w-1/2 flex flex-col justify-center items-center p-8 sm:p-12 md:p-20">
-                <div className="w-full max-w-md space-y-8">
+                <div className="w-full max-w-md space-y-8 animate-fade-in">
 
-                    <div className="text-center mb-10">
-                        <h2 className="text-3xl font-bold text-[#0B1528] mb-2">Login</h2>
-                        <p className="text-gray-500">Masuk ke akun Anda untuk mengelola inventaris</p>
+                    <div className="text-center mb-8">
+                        <h2 className="text-3xl font-bold text-[#0B1528] mb-2">
+                            {isLogin ? 'Login' : 'Buat Akun Baru'}
+                        </h2>
+                        <p className="text-gray-500">
+                            {isLogin
+                                ? 'Masuk ke akun Anda untuk mengelola inventaris'
+                                : 'Daftarkan UMKM Anda ke sistem kami'}
+                        </p>
                     </div>
 
-                    {/* 4. Tambahkan onSubmit pada form untuk menangani tombol Enter dan klik */}
-                    <form className="mt-8 space-y-4" onSubmit={handleLogin}>
-                        <Input
-                            type="email"
-                            placeholder="baguspratama5000@gmail.com"
-                            icon={<svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect width="20" height="16" x="2" y="4" rx="2" /><path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7" /></svg>}
-                        />
-                        <Input
-                            type="password"
-                            placeholder="••••••••••••"
-                            icon={<svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect width="18" height="11" x="3" y="11" rx="2" ry="2" /><path d="M7 11V7a5 5 0 0 1 10 0v4" /></svg>}
-                        />
+                    {/* Pesan Error & Success */}
+                    {errorMsg && (
+                        <div className="bg-red-50 border-l-4 border-red-500 text-red-700 p-4 text-sm font-medium rounded-r-lg">
+                            {errorMsg}
+                        </div>
+                    )}
+                    {successMsg && (
+                        <div className="bg-green-50 border-l-4 border-green-500 text-green-700 p-4 text-sm font-medium rounded-r-lg">
+                            {successMsg}
+                        </div>
+                    )}
 
-                        <div className="flex justify-end mb-6">
-                            <button type="button" className="text-sm font-medium text-gray-600 hover:text-[#1A361D] transition-colors">
-                                Forgot Password?
-                            </button>
+                    <form className="mt-8 space-y-4" onSubmit={handleSubmit}>
+
+                        {/* Input Nama (Hanya muncul saat Sign Up) */}
+                        {!isLogin && (
+                            <div className="relative">
+                                <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+                                    <User size={18} className="text-gray-400" />
+                                </div>
+                                <input
+                                    type="text"
+                                    name="name"
+                                    value={formData.name}
+                                    onChange={handleChange}
+                                    placeholder="Nama Lengkap / Nama UMKM"
+                                    className="w-full pl-11 pr-4 py-3.5 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#A7D189] focus:bg-white transition-all"
+                                />
+                            </div>
+                        )}
+
+                        {/* Input Email */}
+                        <div className="relative">
+                            <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+                                <Mail size={18} className="text-gray-400" />
+                            </div>
+                            <input
+                                type="email"
+                                name="email"
+                                value={formData.email}
+                                onChange={handleChange}
+                                placeholder="baguspratama5000@gmail.com"
+                                className="w-full pl-11 pr-4 py-3.5 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#A7D189] focus:bg-white transition-all"
+                            />
                         </div>
 
-                        {/* Tombol otomatis memicu onSubmit pada form karena tipe defaultnya adalah "submit" */}
-                        <Button variant="primary">Login</Button>
-
-                        <div className="relative flex items-center py-5">
-                            <div className="flex-grow border-t border-gray-200"></div>
-                            <span className="flex-shrink-0 mx-4 text-gray-400 text-sm">or</span>
-                            <div className="flex-grow border-t border-gray-200"></div>
+                        {/* Input Password */}
+                        <div className="relative">
+                            <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+                                <Lock size={18} className="text-gray-400" />
+                            </div>
+                            <input
+                                type="password"
+                                name="password"
+                                value={formData.password}
+                                onChange={handleChange}
+                                placeholder="••••••••••••"
+                                className="w-full pl-11 pr-4 py-3.5 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#A7D189] focus:bg-white transition-all"
+                            />
                         </div>
 
-                        {/* Tambahkan type="button" agar tidak ikut men-submit form */}
-                        <Button variant="outline" type="button" onClick={() => navigate('/dashboard')}>
-                            <img src="https://www.svgrepo.com/show/475656/google-color.svg" className="w-5 h-5" alt="Google" />
-                            Continue with Google
-                        </Button>
+                        {/* Lupa Password (Hanya muncul saat Login) */}
+                        {isLogin && (
+                            <div className="flex justify-end mb-6">
+                                <button type="button" className="text-sm font-medium text-gray-600 hover:text-[#1A361D] transition-colors">
+                                    Forgot Password?
+                                </button>
+                            </div>
+                        )}
 
+                        {/* Tombol Utama Dinamis dengan status Loading */}
+                        <button
+                            type="submit"
+                            disabled={isLoading}
+                            className={`w-full py-3.5 rounded-xl font-bold text-white shadow-md transition-all flex justify-center items-center gap-2 mt-4 ${isLoading ? 'bg-gray-400 cursor-not-allowed' : 'bg-[#1A361D] hover:bg-[#122614] hover:shadow-lg'
+                                }`}
+                        >
+                            {isLoading && <Loader2 size={18} className="animate-spin" />}
+                            {isLoading ? 'Memproses...' : (isLogin ? 'Login' : 'Daftar Sekarang')}
+                        </button>
+
+                        {/* Teks Toggle Login/Signup */}
                         <p className="text-center text-sm text-gray-600 mt-8">
-                            Don't have an account?{' '}
-                            <button onClick={handleSignUp} type="button" className="font-semibold text-[#0B1528] hover:underline">
-                                Sign up
+                            {isLogin ? "Don't have an account? " : "Already have an account? "}
+                            <button
+                                onClick={toggleMode}
+                                type="button"
+                                className="font-bold text-[#1A361D] hover:underline"
+                            >
+                                {isLogin ? 'Sign up' : 'Login'}
                             </button>
                         </p>
                     </form>
