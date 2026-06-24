@@ -13,9 +13,28 @@ const DetailBahan = () => {
     const [bahan, setBahan] = useState(null);
     const [isSuccess, setIsSuccess] = useState(false);
 
+    // 👇 TAMBAHAN: State untuk menyimpan kunci brankas
+    const [storageKey, setStorageKey] = useState('umkm_inventory_guest');
+
     useEffect(() => {
-        const savedInventory = localStorage.getItem('umkm_inventory');
+        // 👇 PERBAIKAN 1: Cari tahu siapa user-nya dan buka brankas yang tepat
+        const savedUser = localStorage.getItem('umkm_user');
+        let currentKey = 'umkm_inventory_guest';
+
+        if (savedUser) {
+            try {
+                const parsedUser = JSON.parse(savedUser);
+                if (parsedUser.id || parsedUser.email) {
+                    currentKey = `umkm_inventory_${parsedUser.id || parsedUser.email}`;
+                }
+            } catch (e) { console.error(e); }
+        }
+        setStorageKey(currentKey);
+
+        // 👇 PERBAIKAN 2: Ambil data dari brankas yang sudah disesuaikan
+        const savedInventory = localStorage.getItem(currentKey);
         const inventoryData = savedInventory ? JSON.parse(savedInventory) : dummyInventory;
+
         const foundItem = inventoryData.find(item => item.id.toString() === id.toString());
         setBahan(foundItem);
     }, [id]);
@@ -34,14 +53,16 @@ const DetailBahan = () => {
 
                 setBahan({ ...bahan, gambar: base64String });
 
-                const savedInventory = JSON.parse(localStorage.getItem('umkm_inventory')) || dummyInventory;
+                // 👇 PERBAIKAN 3: Simpan foto baru ke brankas yang tepat
+                const savedInventory = JSON.parse(localStorage.getItem(storageKey)) || dummyInventory;
                 const updatedInventory = savedInventory.map(item => {
                     if (item.id.toString() === id.toString()) {
                         return { ...item, gambar: base64String };
                     }
                     return item;
                 });
-                localStorage.setItem('umkm_inventory', JSON.stringify(updatedInventory));
+
+                localStorage.setItem(storageKey, JSON.stringify(updatedInventory));
 
                 setIsSuccess(true);
                 setTimeout(() => setIsSuccess(false), 2500);
