@@ -1,16 +1,34 @@
-# React + Vite
+# FoodWaste Management System (UMKM)
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+A professional, high-performance web dashboard application designed to help MSMEs (UMKM) efficiently manage inventory, reduce food waste, and automate daily operational briefings.
 
-Currently, two official plugins are available:
+## 🚀 Overview
+The FoodWaste Management System is built to provide small culinary businesses with enterprise-level control over their kitchen inventory. It features an intuitive, dark-mode focused UI that assists managers in identifying critical stock levels, creating fast-action promotions, and organizing food donations to reduce waste.
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+## ✨ Key Features
+*   **Inventory Dashboard**: Real-time overview of stock safety, critical warnings, and waste reduction analytics.
+*   **Smart Briefing**: A Tinder-style swipe interface (`Briefing Pagi`) for quick, daily inventory auditing.
+*   **Dynamic Promotions**: Easy-to-use "Flash Sale" generator to move near-expiry stock quickly.
+*   **Donation Catalog**: Integrated system to manage and track food donations to local partners.
+*   **Responsive Dark Mode UI**: A professionally crafted interface using a dark color palette for enhanced focus and a modern enterprise feel.
+*   **Data Persistence**: Uses `localStorage` for robust, client-side data management.
 
-## React Compiler
+## 🛠️ Tech Stack
+*   **Frontend**: React.js
+*   **Build Tool**: Vite
+*   **Styling**: Tailwind CSS
+*   **Icons**: Lucide React
+*   **Charts**: Chart.js & React-Chartjs-2
+*   **Animations**: Framer Motion & CSS Animations
+*   **State Management**: React Hooks (useState, useEffect, useMemo)
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+## 📦 Getting Started
 
-## Expanding the ESLint configuration
+### Prerequisites
+*   Node.js (v18+)
+*   pnpm (recommended) or npm
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+### Installation
+1. Clone the repository:
+```bash
+   git clone [your-repo-link]
