@@ -1,15 +1,99 @@
 @import "tailwindcss";
 
+/* =========================================
+   1. BASE STYLES (PONDASI UTAMA)
+========================================= */
+@layer base {
+
+    html,
+    body,
+    #root {
+        font-family: 'Poppins', sans-serif;
+        background-color: #13131A;
+        /* 👈 Warna dasar Dark Mode Premium */
+        color: #F8FAFC;
+        scroll-behavior: smooth;
+    }
+
+    /* Custom Scrollbar */
+    ::-webkit-scrollbar {
+        width: 6px;
+        height: 6px;
+    }
+
+    ::-webkit-scrollbar-track {
+        background: #13131A;
+    }
+
+    ::-webkit-scrollbar-thumb {
+        background: #252530;
+        border-radius: 10px;
+    }
+
+    ::-webkit-scrollbar-thumb:hover {
+        background: #A7D189;
+    }
+}
+
+/* =========================================
+   2. KOMPONEN UI (REUSABLE CLASSES)
+========================================= */
+@layer components {
+    .dashboard-container {
+        @apply flex flex-col h-full w-full max-w-5xl mx-auto space-y-6 pb-24 relative px-4 pt-6 min-h-screen;
+    }
+
+    .premium-card {
+        @apply bg-[#1E293B] border border-gray-700/50 p-5 rounded-3xl shadow-lg relative overflow-hidden transition-all duration-300 hover:border-gray-600/80 hover:shadow-xl;
+    }
+
+    .glow-green {
+        @apply absolute w-24 h-24 bg-[#A7D189]/10 rounded-full blur-2xl pointer-events-none transition-all duration-500;
+    }
+
+    .glow-blue {
+        @apply absolute w-24 h-24 bg-blue-500/10 rounded-full blur-2xl pointer-events-none transition-all duration-500;
+    }
+
+    .glow-red {
+        @apply absolute top-[-50px] right-[-50px] w-40 h-40 bg-red-500/10 rounded-full blur-3xl pointer-events-none;
+    }
+
+    .input-premium {
+        @apply w-full px-4 py-3.5 bg-[#0F172A] border border-gray-700/50 text-white rounded-2xl text-sm outline-none focus:border-[#A7D189] focus:ring-1 focus:ring-[#A7D189] transition-all placeholder-gray-500 shadow-inner;
+    }
+
+    .btn-primary {
+        @apply w-full mt-4 py-4 bg-[#A7D189] text-[#0B1528] rounded-2xl font-black flex justify-center items-center gap-2 hover:bg-[#95C276] shadow-lg shadow-[#A7D189]/20 active:scale-95 transition-all;
+    }
+
+    .btn-icon-green {
+        @apply w-12 h-12 bg-[#A7D189] text-[#0B1528] rounded-2xl flex items-center justify-center hover:scale-105 hover:bg-[#95C276] shadow-lg shadow-[#A7D189]/30 transition-all;
+    }
+
+    /* 👇 KATA 'group' SUDAH DIHAPUS DARI SINI 👇 */
+    .btn-action-card {
+        @apply bg-[#1E293B] p-5 rounded-3xl border border-gray-700/50 shadow-lg flex flex-col items-center gap-3 hover:border-[#A7D189] hover:bg-[#0F172A] transition-all cursor-pointer;
+    }
+}
+
+/* =========================================
+   3. ANIMASI & UTILITIES
+========================================= */
 @layer utilities {
     .animate-fade-in {
-        animation: fadeIn 0.5s ease-out forwards;
+        animation: fadeIn 0.5s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+    }
+
+    .animate-slide-down {
+        animation: slideDown 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards;
     }
 }
 
 @keyframes fadeIn {
     0% {
         opacity: 0;
-        transform: scale(0.9);
+        transform: scale(0.95);
     }
 
     100% {
@@ -18,8 +102,14 @@
     }
 }
 
-body {
-    font-family: 'Poppins', sans-serif;
-    background-color: #F9FAFB;
-    /* Warna abu-abu sangat muda dari referensi */
+@keyframes slideDown {
+    0% {
+        opacity: 0;
+        transform: translateY(-20px) scale(0.98);
+    }
+
+    100% {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+    }
 }

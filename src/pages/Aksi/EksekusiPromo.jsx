@@ -9,9 +9,9 @@ import html2canvas from 'html2canvas';
 const EksekusiPromo = () => {
     const { id } = useParams();
     const navigate = useNavigate();
-    const location = useLocation(); // BACA LOKASI
+    const location = useLocation();
     const queryParams = new URLSearchParams(location.search);
-    const fromWhere = queryParams.get('from'); // BACA JEJAK
+    const fromWhere = queryParams.get('from');
 
     const [diskon, setDiskon] = useState(30);
     const [isSuccess, setIsSuccess] = useState(false);
@@ -29,15 +29,10 @@ const EksekusiPromo = () => {
     const [isConfirmModalOpen, setIsConfirmModalOpen] = useState(false);
     const [itemToDelete, setItemToDelete] = useState(null);
 
-    // LOGIKA TOMBOL KEMBALI DINAMIS (KUNCI UX)
     const handleBack = () => {
-        if (fromWhere === 'briefing') {
-            navigate('/briefing');
-        } else if (id) {
-            navigate('/promo');
-        } else {
-            navigate('/dashboard');
-        }
+        if (fromWhere === 'briefing') navigate('/briefing');
+        else if (id) navigate('/promo');
+        else navigate('/dashboard');
     };
 
     useEffect(() => {
@@ -72,7 +67,6 @@ const EksekusiPromo = () => {
         const updatedInventory = savedInventory.map(item => item.id === itemKritis.id ? { ...item, status: 'Aman', sisaWaktu: '🌟 Sedang Promo' } : item);
         localStorage.setItem('umkm_inventory', JSON.stringify(updatedInventory));
 
-        // HAPUS DARI KERANJANG DISISIHKAN BRIEFING AGAR TIDAK MUNCUL LAGI
         const savedDisisihkan = JSON.parse(localStorage.getItem('umkm_disisihkan') || '[]');
         const updatedDisisihkan = savedDisisihkan.filter(i => i.id !== itemKritis.id);
         localStorage.setItem('umkm_disisihkan', JSON.stringify(updatedDisisihkan));
@@ -80,7 +74,6 @@ const EksekusiPromo = () => {
         setIsSuccess(true);
     };
 
-    // Fungsi handleHapusPromo & handleLanjutPromoManual tetap utuh
     const triggerHapusPromo = (idBahan) => { setItemToDelete(idBahan); setIsConfirmModalOpen(true); };
     const executeHapusPromo = () => {
         if (!itemToDelete) return;
@@ -99,7 +92,7 @@ const EksekusiPromo = () => {
         setPromoAktif(aktif); setRekomendasiPromo(rekomendasi); setIsConfirmModalOpen(false); setItemToDelete(null);
     };
 
-    const handleDownloadPoster = async () => { /* Logika Canvas Tetap Sama */
+    const handleDownloadPoster = async () => {
         if (!posterRef.current) return;
         setIsDownloading(true);
         try {
@@ -112,83 +105,121 @@ const EksekusiPromo = () => {
 
     const handleLanjutPromoManual = (e) => { e.preventDefault(); if (!formData.idBahan) return; setIsModalOpen(false); navigate(`/promo/${formData.idBahan}`); };
 
-    if (isLoading) return <div className="flex justify-center items-center h-screen"><div className="animate-spin rounded-full h-10 w-10 border-b-2 border-[#1A361D]"></div></div>;
+    if (isLoading) return <div className="flex justify-center items-center h-screen"><div className="animate-spin rounded-full h-10 w-10 border-b-2 border-[#A7D189]"></div></div>;
 
-    // --- MODE 1: LIST PROMO UTAMA ---
     if (!id) {
         return (
-            <div className="flex flex-col min-h-full w-full max-w-md mx-auto relative overflow-x-hidden pb-24 px-4 pt-6">
+            <div className="flex flex-col min-h-full w-full max-w-md mx-auto relative overflow-x-hidden pb-24 px-4 pt-6 text-white font-sans">
                 <div className="flex items-center gap-4 mb-6">
-                    <button onClick={handleBack} className="p-2 bg-white rounded-full shadow-sm hover:bg-gray-50"><ArrowLeft size={20} className="text-gray-700" /></button>
-                    <h2 className="text-2xl font-bold text-gray-800">Manajemen Promo</h2>
+                    <button onClick={handleBack} className="p-2 bg-[#1C1C24] border border-white/5 rounded-full hover:bg-white/10 transition-colors"><ArrowLeft size={20} className="text-gray-300" /></button>
+                    <h2 className="text-2xl font-black tracking-wide text-white">Manajemen Promo</h2>
                 </div>
-                <div className="bg-yellow-50 border border-yellow-100 rounded-xl p-4 flex gap-3 items-start mb-6"><AlertTriangle size={20} className="text-yellow-600 shrink-0 mt-0.5" /><p className="text-xs text-yellow-800 font-medium">Sistem hanya merekomendasikan barang dengan sisa waktu kedaluwarsa/habis <strong>maksimal 3 hari</strong> untuk dipromosikan segera.</p></div>
-                <button onClick={() => setIsModalOpen(true)} className="w-full mb-8 py-4 bg-[#A7D189] text-[#1A361D] rounded-xl font-bold flex justify-center items-center gap-2 hover:bg-[#95C276] shadow-md"><Plus size={20} /> Tambah Promo Manual</button>
+
+                <div className="bg-yellow-500/10 border border-yellow-500/20 rounded-[24px] p-5 flex gap-4 items-start mb-6 shadow-lg">
+                    <AlertTriangle size={24} className="text-yellow-500 shrink-0 mt-0.5" />
+                    <p className="text-xs text-yellow-100/80 font-medium leading-relaxed">Sistem merekomendasikan barang dengan sisa kedaluwarsa <strong>maksimal 3 hari</strong> untuk dipromosikan segera.</p>
+                </div>
+
+                <button onClick={() => setIsModalOpen(true)} className="w-full mb-8 py-4 bg-[#A7D189] text-[#13131A] rounded-[20px] font-black flex justify-center items-center gap-2 hover:bg-[#95C276] shadow-[0_10px_20px_rgba(167,209,137,0.2)] active:scale-95 transition-all">
+                    <Plus size={22} className="stroke-[3px]" /> Tambah Promo Manual
+                </button>
 
                 <div className="mb-8">
-                    <h3 className="font-bold text-gray-800 text-sm mb-3 flex items-center gap-2"><Sparkles size={16} className="text-yellow-500" /> Sedang Dipromosikan ({promoAktif.length})</h3>
-                    {promoAktif.length === 0 ? <p className="text-xs text-gray-400 italic bg-white border border-dashed border-gray-200 p-4 rounded-xl text-center">Belum ada promo yang aktif di kasir.</p> : (
+                    <h3 className="font-black text-white text-sm mb-4 flex items-center gap-2 uppercase tracking-widest"><Sparkles size={18} className="text-yellow-400" /> Sedang Dipromosikan ({promoAktif.length})</h3>
+                    {promoAktif.length === 0 ? <p className="text-xs text-gray-500 font-medium bg-[#1C1C24] border border-dashed border-white/10 p-6 rounded-[24px] text-center">Belum ada promo yang aktif di kasir.</p> : (
                         <div className="space-y-3">{promoAktif.map((item) => (
-                            <div key={item.id} className="bg-white rounded-2xl p-4 flex items-center justify-between shadow-sm border border-yellow-300 relative overflow-hidden group">
-                                <div className="flex items-center gap-4 flex-1 pr-2"><div className="w-16 h-16 rounded-xl overflow-hidden bg-gray-100 border border-yellow-100 p-0.5"><img src={item.gambar} alt={item.nama} className="w-full h-full object-cover rounded-lg" /></div><div><h3 className="font-bold text-gray-800 text-base">{item.nama}</h3><p className="text-xs text-gray-500 mt-1">Sisa Stok: <span className="font-bold text-gray-700">{item.sisa}</span></p><span className="text-[10px] font-bold text-yellow-700 bg-yellow-50 px-1.5 py-0.5 rounded mt-1 inline-block">Flash Sale Aktif</span></div></div>
-                                <button onClick={() => triggerHapusPromo(item.id)} className="p-2 text-gray-400 hover:text-red-500 bg-red-50 rounded-xl" title="Hentikan Promo"><Trash2 size={18} /></button>
+                            <div key={item.id} className="bg-[#1C1C24] rounded-[24px] p-4 flex items-center justify-between shadow-lg border border-yellow-500/30 relative overflow-hidden group">
+                                <div className="absolute top-0 right-0 w-24 h-24 bg-yellow-500/5 rounded-full blur-2xl pointer-events-none"></div>
+                                <div className="flex items-center gap-4 flex-1 pr-2 relative z-10">
+                                    <div className="w-16 h-16 rounded-[18px] overflow-hidden bg-[#252530] border border-white/5"><img src={item.gambar} alt={item.nama} className="w-full h-full object-cover" /></div>
+                                    <div><h3 className="font-bold text-white text-base">{item.nama}</h3><p className="text-xs text-gray-400 mt-1">Sisa Stok: <span className="font-bold text-gray-200">{item.sisa}</span></p><span className="text-[9px] font-black text-[#13131A] bg-yellow-400 px-2 py-1 rounded-md mt-2 inline-block uppercase tracking-wider">Flash Sale Aktif</span></div>
+                                </div>
+                                <button onClick={() => triggerHapusPromo(item.id)} className="p-3 text-red-400 hover:text-white bg-red-500/10 hover:bg-red-500 border border-red-500/20 rounded-xl transition-all relative z-10" title="Hentikan Promo"><Trash2 size={20} /></button>
                             </div>
                         ))}</div>
                     )}
                 </div>
 
-                <h3 className="font-bold text-gray-800 text-sm mb-3">🚨 Rekomendasi Mendesak ({rekomendasiPromo.length})</h3>
-                {rekomendasiPromo.length === 0 ? <div className="bg-green-50 p-4 rounded-xl text-center border border-green-100"><ShieldCheck size={24} className="text-green-500 mx-auto mb-2" /><p className="text-xs text-green-700 font-medium">Gudang aman, tidak ada barang mendesak (H-3).</p></div> : (
+                <h3 className="font-black text-white text-sm mb-4 uppercase tracking-widest text-red-400">🚨 Rekomendasi Mendesak ({rekomendasiPromo.length})</h3>
+                {rekomendasiPromo.length === 0 ? <div className="bg-[#A7D189]/10 p-6 rounded-[24px] text-center border border-[#A7D189]/20 shadow-lg"><ShieldCheck size={32} className="text-[#A7D189] mx-auto mb-3" /><p className="text-sm text-[#A7D189] font-medium">Gudang aman, tidak ada barang mendesak (H-3).</p></div> : (
                     <div className="space-y-3">{rekomendasiPromo.map((item) => (
-                        <div key={item.id} onClick={() => navigate(`/promo/${item.id}`)} className="bg-white rounded-2xl p-4 flex items-center justify-between shadow-sm border border-red-100 cursor-pointer hover:border-red-300 group relative overflow-hidden"><div className="absolute left-0 top-0 bottom-0 w-1 bg-red-400"></div><div className="flex items-center gap-4 pl-2"><div className="w-16 h-16 rounded-xl overflow-hidden bg-gray-100"><img src={item.gambar} alt={item.nama} className="w-full h-full object-cover" /></div><div><h3 className="font-bold text-gray-800 text-base group-hover:text-red-700">{item.nama}</h3><div className="flex items-center gap-2 mt-1"><span className="px-2 py-0.5 rounded text-[10px] font-bold bg-red-100 text-red-600">Sisa: {item.sisaWaktu}</span><span className="text-xs text-gray-500">Stok: {item.sisa}</span></div></div></div><ChevronRight size={20} className="text-gray-300 group-hover:text-red-500" /></div>
+                        <div key={item.id} onClick={() => navigate(`/promo/${item.id}`)} className="bg-[#1C1C24] rounded-[24px] p-4 flex items-center justify-between shadow-lg border border-red-500/20 cursor-pointer hover:border-red-500/50 hover:bg-[#252530] group transition-all relative overflow-hidden hover:-translate-y-1">
+                            <div className="absolute left-0 top-0 bottom-0 w-1.5 bg-red-500"></div>
+                            <div className="flex items-center gap-4 pl-2 relative z-10">
+                                <div className="w-16 h-16 rounded-[18px] overflow-hidden bg-[#13131A] border border-white/5"><img src={item.gambar} alt={item.nama} className="w-full h-full object-cover" /></div>
+                                <div><h3 className="font-bold text-white text-base group-hover:text-red-400 transition-colors">{item.nama}</h3><div className="flex items-center gap-3 mt-2"><span className="px-2 py-1 rounded-md text-[9px] font-black bg-red-500/20 border border-red-500/30 text-red-400 uppercase tracking-wider">{item.sisaWaktu}</span><span className="text-xs text-gray-400">Stok: {item.sisa}</span></div></div>
+                            </div>
+                            <ChevronRight size={22} className="text-gray-500 group-hover:text-red-400 relative z-10 transition-colors" />
+                        </div>
                     ))}</div>
                 )}
 
                 {/* MODAL MANUAL */}
                 {isModalOpen && (
-                    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-gray-900/60 backdrop-blur-sm"><div className="bg-white w-full max-w-sm rounded-2xl shadow-2xl overflow-hidden"><div className="flex items-center justify-between p-4 border-b border-gray-100 bg-gray-50"><h3 className="font-bold text-gray-800 flex items-center gap-2"><Tag size={18} className="text-[#A7D189]" /> Pilih Bahan Manual</h3><button onClick={() => { setIsModalOpen(false); setSelectedBahanId(''); }} className="text-gray-400 hover:text-red-500"><X size={20} /></button></div><form onSubmit={handleLanjutPromoManual} className="p-5 space-y-4"><div><label className="block text-xs font-bold text-gray-500 mb-2">INVENTARIS GUDANG</label><select required value={selectedBahanId} onChange={(e) => setSelectedBahanId(e.target.value)} className="w-full px-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl text-sm focus:ring-2 focus:ring-[#A7D189]"><option value="" disabled>-- Pilih Barang --</option>{inventory.filter(item => !item.sisaWaktu?.includes('Sedang Promo')).map(item => (<option key={item.id} value={item.id}>{item.nama} (Stok: {item.sisa})</option>))}</select></div><button type="submit" className="w-full mt-2 py-3 bg-[#1A361D] text-white rounded-xl font-bold flex justify-center items-center gap-2">Lanjut Eksekusi Promo <ChevronRight size={18} /></button></form></div></div>
+                    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-[#0B1528]/80 backdrop-blur-md">
+                        <div className="bg-[#1C1C24] w-full max-w-sm rounded-[32px] shadow-2xl border border-white/10 overflow-hidden">
+                            <div className="flex items-center justify-between p-6 border-b border-white/5">
+                                <h3 className="font-black text-white flex items-center gap-2"><Tag size={20} className="text-[#A7D189]" /> Pilih Manual</h3>
+                                <button onClick={() => { setIsModalOpen(false); setFormData({ idBahan: '' }); }} className="text-gray-500 hover:text-white"><X size={22} /></button>
+                            </div>
+                            <form onSubmit={handleLanjutPromoManual} className="p-6 space-y-6">
+                                <div>
+                                    <label className="block text-[10px] font-bold text-gray-400 mb-2 uppercase tracking-widest">Inventaris Gudang</label>
+                                    <select required value={formData.idBahan} onChange={(e) => setFormData({ idBahan: e.target.value })} className="w-full px-4 py-4 bg-[#252530] border border-white/5 text-white rounded-2xl text-sm focus:ring-1 focus:ring-[#A7D189] outline-none appearance-none">
+                                        <option value="" disabled>-- Pilih Barang --</option>
+                                        {inventory.filter(item => !item.sisaWaktu?.includes('Sedang Promo')).map(item => (<option key={item.id} value={item.id}>{item.nama} (Stok: {item.sisa})</option>))}
+                                    </select>
+                                </div>
+                                <button type="submit" className="w-full py-4 bg-[#A7D189] text-[#13131A] rounded-2xl font-black flex justify-center items-center gap-2 hover:bg-[#95C276] shadow-lg shadow-[#A7D189]/20 transition-all">Lanjut Eksekusi <ChevronRight size={20} className="stroke-[3px]" /></button>
+                            </form>
+                        </div>
+                    </div>
                 )}
                 {/* MODAL HAPUS */}
                 {isConfirmModalOpen && (
-                    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-gray-900/60 backdrop-blur-sm"><div className="bg-white w-full max-w-sm rounded-3xl shadow-2xl p-6 text-center"><div className="w-16 h-16 bg-red-50 text-red-500 rounded-full flex items-center justify-center mx-auto mb-4"><AlertTriangle size={32} /></div><h3 className="font-bold text-gray-800 text-xl mb-2">Hentikan Promo?</h3><p className="text-gray-500 text-sm mb-6">Promo diskon untuk bahan ini akan dihentikan dan statusnya dikembalikan normal.</p><div className="flex gap-3"><button onClick={() => { setIsConfirmModalOpen(false); setItemToDelete(null); }} className="flex-1 py-3 bg-gray-100 text-gray-700 rounded-xl font-bold">Batal</button><button onClick={executeHapusPromo} className="flex-1 py-3 bg-red-600 text-white rounded-xl font-bold">Ya, Hentikan</button></div></div></div>
+                    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-[#0B1528]/80 backdrop-blur-md">
+                        <div className="bg-[#1C1C24] w-full max-w-sm rounded-[32px] shadow-2xl p-8 text-center border border-white/10">
+                            <div className="w-16 h-16 bg-red-500/10 text-red-500 border border-red-500/20 rounded-[20px] flex items-center justify-center mx-auto mb-5"><AlertTriangle size={32} /></div>
+                            <h3 className="font-black text-white text-xl mb-2">Hentikan Promo?</h3>
+                            <p className="text-gray-400 text-sm mb-8 font-medium">Promo untuk bahan ini akan dihentikan dan statusnya kembali normal.</p>
+                            <div className="flex gap-3"><button onClick={() => { setIsConfirmModalOpen(false); setItemToDelete(null); }} className="flex-1 py-4 bg-[#252530] text-gray-300 rounded-2xl font-bold hover:bg-white/10 transition-colors">Batal</button><button onClick={executeHapusPromo} className="flex-1 py-4 bg-red-500 text-white rounded-2xl font-bold hover:bg-red-600 transition-colors shadow-lg shadow-red-500/20">Ya, Hentikan</button></div>
+                        </div>
+                    </div>
                 )}
             </div>
         );
     }
 
-    // --- MODE 2: EDITOR POSTER PROMO ---
-    if (id && !itemKritis) return <div className="flex justify-center items-center h-screen">Bahan tidak ditemukan</div>;
+    // --- MODE 2: EDITOR ---
+    if (id && !itemKritis) return <div className="flex justify-center items-center h-screen text-white">Bahan tidak ditemukan</div>;
 
     return (
-        <div className="flex flex-col min-h-full w-full max-w-md mx-auto relative overflow-x-hidden pb-24 px-4 pt-6">
+        <div className="flex flex-col min-h-full w-full max-w-md mx-auto relative overflow-x-hidden pb-24 px-4 pt-6 text-white font-sans">
             <PromoPoster ref={posterRef} itemKritis={itemKritis} diskon={diskon} />
-            <div className="flex items-center gap-4 mb-6 mt-4">
-                <button onClick={handleBack} className="p-2 bg-white rounded-full shadow-sm hover:bg-gray-50 transition-colors"><ArrowLeft size={20} className="text-gray-700" /></button>
-                <h2 className="text-2xl font-bold text-gray-800">Tindakan Cepat</h2>
+            <div className="flex items-center gap-4 mb-6 mt-6">
+                <button onClick={handleBack} className="p-2 bg-[#1C1C24] border border-white/5 rounded-full shadow-sm hover:bg-white/10 transition-colors"><ArrowLeft size={20} className="text-gray-300" /></button>
+                <h2 className="text-2xl font-black tracking-wide">Tindakan Cepat</h2>
             </div>
 
-            <div className="bg-white rounded-2xl p-6 shadow-sm border border-gray-100 mb-6">
-                <div className="flex justify-between mb-4"><div><span className="px-3 py-1 text-xs font-bold rounded-full mb-2 inline-block bg-orange-100 text-orange-600">{itemKritis.sisaWaktu}</span><h3 className="text-xl font-bold text-gray-800">{itemKritis.nama}</h3><p className="text-gray-500 text-sm mt-1">Sisa Stok: <span className="font-bold text-gray-700">{itemKritis.sisa}</span></p></div></div>
+            <div className="bg-[#1C1C24] rounded-[28px] p-6 shadow-lg border border-white/5 mb-6 relative overflow-hidden">
+                <div className="absolute top-0 right-0 w-32 h-32 bg-[#A7D189]/5 rounded-full blur-3xl pointer-events-none"></div>
+                <div className="relative z-10"><span className="px-3 py-1 text-[10px] font-black rounded-lg mb-3 inline-block bg-orange-500/20 text-orange-400 border border-orange-500/30 uppercase tracking-widest">{itemKritis.sisaWaktu}</span><h3 className="text-2xl font-black text-white">{itemKritis.nama}</h3><p className="text-gray-400 text-sm mt-2 font-medium">Sisa Stok: <span className="font-bold text-gray-200">{itemKritis.sisa}</span></p></div>
             </div>
 
-            <div className="bg-white rounded-2xl p-6 shadow-sm border border-gray-100 flex-1">
-                <label className="block text-gray-700 font-bold mb-4 flex items-center gap-2"><Tag size={18} /> Atur Besaran Diskon</label>
-                <div className="flex items-center gap-4 mb-8">
-                    <input type="range" min="10" max="70" step="5" value={diskon} disabled={isSuccess} onChange={(e) => setDiskon(e.target.value)} className="w-full h-2 rounded-lg bg-gray-200 accent-[#1A361D]" />
-                    <span className="text-2xl font-bold text-[#1A361D] w-16 text-center">{diskon}%</span>
+            <div className="bg-[#1C1C24] rounded-[32px] p-6 shadow-lg border border-white/5 flex-1 relative">
+                <label className="text-white font-black mb-6 flex items-center gap-2 text-lg"><Tag size={20} className="text-[#A7D189]" /> Atur Besaran Diskon</label>
+                <div className="flex items-center gap-4 mb-10">
+                    <input type="range" min="10" max="70" step="5" value={diskon} disabled={isSuccess} onChange={(e) => setDiskon(e.target.value)} className="w-full h-3 rounded-full bg-[#13131A] accent-[#A7D189] appearance-none" />
+                    <span className="text-3xl font-black text-[#A7D189] w-20 text-right">{diskon}%</span>
                 </div>
 
                 {!isSuccess ? (
-                    <button onClick={handleTerapkan} className="w-full py-4 bg-[#1A361D] text-white rounded-xl font-bold">Terapkan Flash Sale!</button>
+                    <button onClick={handleTerapkan} className="w-full py-4.5 bg-[#A7D189] text-[#13131A] rounded-[20px] font-black hover:bg-[#95C276] shadow-[0_10px_20px_rgba(167,209,137,0.2)] active:scale-95 transition-all text-lg">Terapkan Flash Sale!</button>
                 ) : (
-                    <div className="space-y-3 animate-fade-in">
-                        <div className="w-full py-3 bg-green-50 text-green-700 border border-green-200 rounded-xl font-bold flex justify-center items-center gap-2"><CheckCircle2 size={20} /> Promo Aktif!</div>
-                        <button onClick={handleDownloadPoster} disabled={isDownloading} className="w-full py-4 bg-blue-600 text-white rounded-xl font-bold flex justify-center items-center gap-2"><ImageIcon size={20} /> Unduh Poster Promo</button>
-
-                        {/* TOMBOL KEMBALI DINAMIS */}
-                        <button onClick={handleBack} className="w-full py-3 bg-gray-100 text-gray-700 font-bold rounded-xl flex justify-center items-center gap-2">
-                            Kembali ke {fromWhere === 'briefing' ? 'Layar Briefing' : 'Daftar Promo'}
-                        </button>
+                    <div className="space-y-4 animate-fade-in">
+                        <div className="w-full py-4 bg-[#A7D189]/10 text-[#A7D189] border border-[#A7D189]/30 rounded-[20px] font-black flex justify-center items-center gap-2"><CheckCircle2 size={24} /> Promo Aktif!</div>
+                        <button onClick={handleDownloadPoster} disabled={isDownloading} className="w-full py-4 bg-[#2563EB] text-white rounded-[20px] font-black flex justify-center items-center gap-2 hover:bg-blue-600 shadow-[0_10px_20px_rgba(37,99,235,0.3)] transition-all"><ImageIcon size={22} /> Unduh Poster Promo</button>
+                        <button onClick={handleBack} className="w-full py-4 bg-[#252530] hover:bg-white/10 text-white font-bold rounded-[20px] flex justify-center items-center gap-2 transition-all">Kembali ke {fromWhere === 'briefing' ? 'Layar Briefing' : 'Daftar Promo'}</button>
                     </div>
                 )}
             </div>

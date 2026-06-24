@@ -1,36 +1,40 @@
-import { Link, useLocation } from 'react-router-dom';
+import React from 'react';
 import { Home, ScanLine, User } from 'lucide-react';
+import { useLocation, useNavigate } from 'react-router-dom';
 
 const BottomNav = () => {
     const location = useLocation();
-    const currentPath = location.pathname;
+    const navigate = useNavigate();
 
-    // Data menu navigasi
     const navItems = [
-        { name: 'Dashboard', path: '/dashboard', icon: <Home size={24} /> },
-        { name: 'Briefing', path: '/briefing', icon: <ScanLine size={24} /> },
-        { name: 'Profile', path: '/settings', icon: <User size={24} /> },
+        { id: 'dashboard', path: '/dashboard', icon: Home, label: 'Dashboard' },
+        { id: 'briefing', path: '/briefing', icon: ScanLine, label: 'Briefing' },
+        // 👇 PERBAIKAN: path diubah dari '/profile' ke '/settings'
+        { id: 'settings', path: '/settings', icon: User, label: 'Pengaturan' }
     ];
 
     return (
-        <div className="fixed bottom-0 w-full bg-white border-t border-gray-100 shadow-[0_-4px_10px_rgba(0,0,0,0.02)] z-50 sm:hidden">
-            <div className="flex justify-around items-center h-16">
+        <div className="fixed bottom-0 w-full md:hidden bg-[#1C1C24]/90 backdrop-blur-lg border-t border-white/5 pb-5 pt-3 px-8 z-50">
+            <div className="flex justify-between items-center">
                 {navItems.map((item) => {
-                    const isActive = currentPath === item.path;
+                    // Cek apakah halaman sedang aktif
+                    const isActive = location.pathname.includes(item.path);
+                    const Icon = item.icon;
+
                     return (
-                        <Link
-                            key={item.name}
-                            to={item.path}
-                            className={`flex flex-col items-center justify-center w-full h-full transition-all duration-300 ${isActive ? 'text-[#1A361D]' : 'text-gray-400 hover:text-[#A7D189]'
+                        <button
+                            key={item.id}
+                            onClick={() => navigate(item.path)}
+                            className={`flex flex-col items-center transition-all duration-300 ease-out ${isActive ? 'text-[#A7D189] -translate-y-3' : 'text-gray-500 hover:text-gray-300'
                                 }`}
                         >
-                            <div className={`${isActive ? 'bg-green-50 p-1.5 rounded-xl' : ''} transition-all duration-300`}>
-                                {item.icon}
+                            <div className={`p-3 rounded-2xl transition-all duration-300 ${isActive ? 'bg-[#A7D189]/10 shadow-[0_10px_20px_rgba(167,209,137,0.2)]' : 'bg-transparent hover:bg-white/5'
+                                }`}>
+                                <Icon size={isActive ? 24 : 22} className={isActive ? 'stroke-[2.5px]' : 'stroke-2'} />
                             </div>
-                            <span className={`text-[10px] mt-1 font-medium ${isActive ? 'font-bold' : ''}`}>
-                                {item.name}
-                            </span>
-                        </Link>
+                            {/* Titik indikator di bawah ikon aktif */}
+                            <div className={`w-1.5 h-1.5 rounded-full bg-[#A7D189] mt-2 transition-all duration-300 ${isActive ? 'opacity-100 scale-100' : 'opacity-0 scale-0'}`}></div>
+                        </button>
                     );
                 })}
             </div>

@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { ArrowLeft, HeartHandshake, CheckCircle2, Plus, X, AlertCircle, Trash2, AlertTriangle } from 'lucide-react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { dummyInventory } from '../../data/dummyInventory';
-import { ToastNotification } from '../../components/Modals/ToastNotification'; // Import Toast Notification
+import { ToastNotification } from '../../components/Modals/ToastNotification';
 
 const KatalogDonasi = () => {
     const navigate = useNavigate();
@@ -12,15 +12,10 @@ const KatalogDonasi = () => {
 
     const [globalInventory, setGlobalInventory] = useState([]);
     const [riwayatDonasi, setRiwayatDonasi] = useState([]);
-
     const [isFormOpen, setIsFormOpen] = useState(false);
     const [formData, setFormData] = useState({ idBahan: '', jumlah: '', target: '' });
-
-    // State untuk Custom Alert Box Hapus Donasi
     const [isConfirmModalOpen, setIsConfirmModalOpen] = useState(false);
     const [idDonasiToDelete, setIdDonasiToDelete] = useState(null);
-
-    // STATE BARU: Untuk menggantikan window.alert bawaan browser
     const [errorMsg, setErrorMsg] = useState('');
     const [isSuccess, setIsSuccess] = useState(false);
     const [successMsg, setSuccessMsg] = useState('');
@@ -54,8 +49,6 @@ const KatalogDonasi = () => {
 
     const handleSubmitDonasi = (e) => {
         e.preventDefault();
-
-        // VALIDASI 1: Cek Kolom Kosong
         if (!formData.idBahan || !formData.jumlah || !formData.target.trim()) {
             return setErrorMsg("Harap lengkapi semua data formulir donasi terlebih dahulu!");
         }
@@ -65,9 +58,8 @@ const KatalogDonasi = () => {
         const satuanBahan = selectedBahanDetail.sisa.replace(/[0-9.]/g, '').trim();
         const jumlahDonasi = parseFloat(formData.jumlah);
 
-        // VALIDASI 2: Cek Limit Stok
         if (jumlahDonasi <= 0 || jumlahDonasi > sisaStokTersedia) {
-            return setErrorMsg(`Jumlah donasi tidak valid! Anda mencoba mendonasikan ${jumlahDonasi} ${satuanBahan}, sementara sisa stok saat ini hanya ${selectedBahanDetail.sisa}.`);
+            return setErrorMsg(`Jumlah donasi tidak valid! Sisa stok saat ini hanya ${selectedBahanDetail.sisa}.`);
         }
 
         const sisaAkhir = sisaStokTersedia - jumlahDonasi;
@@ -78,20 +70,17 @@ const KatalogDonasi = () => {
         setGlobalInventory(updatedInventory);
         localStorage.setItem('umkm_inventory', JSON.stringify(updatedInventory));
 
-        // Bersihkan item dari keranjang briefing disisihkan
         const savedDisisihkan = JSON.parse(localStorage.getItem('umkm_disisihkan') || '[]');
         const updatedDisisihkan = savedDisisihkan.filter(i => i.id !== selectedBahanDetail.id);
         localStorage.setItem('umkm_disisihkan', JSON.stringify(updatedDisisihkan));
 
         const today = new Date();
-        const formattedDate = today.toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' });
-
         const donasiBaru = {
             id: Date.now(),
             bahan: `${jumlahDonasi} ${satuanBahan} ${selectedBahanDetail.nama}`,
             target: formData.target,
             status: "Terkirim",
-            tanggal: formattedDate
+            tanggal: today.toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' })
         };
 
         const updateDaftarDonasi = [donasiBaru, ...riwayatDonasi];
@@ -100,12 +89,8 @@ const KatalogDonasi = () => {
 
         setIsFormOpen(false);
         setFormData({ idBahan: '', jumlah: '', target: '' });
-
-        // TRIGGER TOAST SUCCESS CUSTOM
-        setSuccessMsg(`Data Donasi ${selectedBahanDetail.nama} berhasil dicatat.`);
+        setSuccessMsg(`Donasi ${selectedBahanDetail.nama} berhasil dicatat.`);
         setIsSuccess(true);
-
-        // Jeda waktu 2 detik agar animasi pop-up sukses terlihat sebelum pindah halaman
         setTimeout(() => {
             setIsSuccess(false);
             if (fromWhere === 'briefing') navigate('/briefing', { replace: true });
@@ -113,83 +98,57 @@ const KatalogDonasi = () => {
         }, 2000);
     };
 
-    // TRIGGER MODAL CUSTOM
-    const triggerDeleteDonasi = (id) => {
-        setIdDonasiToDelete(id);
-        setIsConfirmModalOpen(true);
-    };
-
-    // EKSEKUSI HAPUS
+    const triggerDeleteDonasi = (id) => { setIdDonasiToDelete(id); setIsConfirmModalOpen(true); };
     const executeDeleteDonasi = () => {
         const riwayatBaru = riwayatDonasi.filter((item) => item.id !== idDonasiToDelete);
         setRiwayatDonasi(riwayatBaru);
         localStorage.setItem('umkm_donasi', JSON.stringify(riwayatBaru));
-
-        setIsConfirmModalOpen(false);
-        setIdDonasiToDelete(null);
+        setIsConfirmModalOpen(false); setIdDonasiToDelete(null);
     };
 
     return (
-        <div className="flex flex-col min-h-full w-full max-w-md mx-auto pb-6 relative px-4 pt-6">
-            <div className="flex items-center gap-4 mb-6">
-                <button onClick={handleBack} className="p-2 bg-white rounded-full shadow-sm hover:bg-gray-50"><ArrowLeft size={20} className="text-gray-700" /></button>
-                <h2 className="text-2xl font-bold text-gray-800">Katalog Donasi</h2>
+        <div className="flex flex-col min-h-full w-full max-w-md mx-auto pb-24 relative px-4 pt-6 text-white font-sans">
+            <div className="flex items-center gap-4 mb-8">
+                <button onClick={handleBack} className="p-2 bg-[#1C1C24] border border-white/5 rounded-full hover:bg-white/10 transition-colors"><ArrowLeft size={20} className="text-gray-300" /></button>
+                <h2 className="text-2xl font-black tracking-wide text-white">Katalog Donasi</h2>
             </div>
 
-            <button onClick={() => setIsFormOpen(true)} className="w-full mb-6 py-4 bg-[#A7D189] text-[#1A361D] rounded-xl font-bold flex justify-center items-center gap-2 hover:bg-[#95C276] shadow-md"><Plus size={20} /> Tambah Donasi Manual</button>
+            <button onClick={() => setIsFormOpen(true)} className="w-full mb-8 py-4.5 bg-[#A7D189] text-[#13131A] rounded-[20px] font-black flex justify-center items-center gap-2 hover:bg-[#95C276] shadow-[0_10px_20px_rgba(167,209,137,0.2)] active:scale-95 transition-all"><Plus size={22} className="stroke-[3px]" /> Tambah Donasi Manual</button>
 
             <div className="space-y-4">
                 {riwayatDonasi.map((item) => (
-                    <div key={item.id} className="bg-white p-4 rounded-xl shadow-sm border border-gray-100 flex justify-between items-center group animate-fade-in">
-                        <div><h3 className="font-bold text-gray-800">{item.bahan}</h3><p className="text-xs text-gray-500 mt-1">Kepada: {item.target}</p><p className="text-[10px] text-gray-400 mt-1">{item.tanggal}</p></div>
-                        <div className="flex items-center gap-3 pl-3 border-l"><CheckCircle2 size={24} className="text-green-500" /><button onClick={() => triggerDeleteDonasi(item.id)} className="text-gray-300 hover:text-red-500 p-1 rounded transition-colors"><Trash2 size={18} /></button></div>
+                    <div key={item.id} className="bg-[#1C1C24] p-5 rounded-[24px] shadow-lg border border-white/5 flex justify-between items-center group animate-fade-in hover:-translate-y-1 transition-transform duration-300">
+                        <div><h3 className="font-bold text-white text-base">{item.bahan}</h3><p className="text-sm text-gray-400 mt-1 font-medium">Kepada: <span className="text-[#A7D189]">{item.target}</span></p><p className="text-[10px] text-gray-500 mt-2 font-bold tracking-widest uppercase">{item.tanggal}</p></div>
+                        <div className="flex items-center gap-4 pl-4 border-l border-white/10"><CheckCircle2 size={28} className="text-[#A7D189]" /><button onClick={() => triggerDeleteDonasi(item.id)} className="text-gray-500 hover:text-red-400 p-2 bg-[#252530] hover:bg-red-500/10 rounded-xl transition-all"><Trash2 size={18} /></button></div>
                     </div>
                 ))}
             </div>
 
             {/* FORM MODAL RECORD DONASI */}
             {isFormOpen && (
-                <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-gray-900/60 backdrop-blur-sm"><div className="bg-white w-full max-w-sm rounded-2xl shadow-2xl overflow-hidden"><div className="flex items-center justify-between p-4 bg-gray-50"><h3 className="font-bold text-gray-800 flex items-center gap-2"><HeartHandshake size={18} className="text-[#A7D189]" /> Catat Donasi Baru</h3><button onClick={() => setIsFormOpen(false)}><X size={20} className="text-gray-400" /></button></div><form onSubmit={handleSubmitDonasi} className="p-5 space-y-4"><div><label className="block text-xs font-bold text-gray-500 mb-1">PILIH BAHAN</label><select required value={formData.idBahan} onChange={(e) => setFormData({ ...formData, idBahan: e.target.value })} className="w-full px-4 py-2.5 bg-gray-50 border rounded-xl"><option value="" disabled>-- Pilih Bahan --</option>{globalInventory.map(item => <option key={item.id} value={item.id}>{item.nama} (Stok: {item.sisa})</option>)}</select></div><div><label className="block text-xs font-bold text-gray-500">JUMLAH (Maks: {selectedBahanDetail?.sisa || 0})</label><input type="number" step="0.1" required value={formData.jumlah} onChange={(e) => setFormData({ ...formData, jumlah: e.target.value })} className="w-full px-4 py-2.5 bg-gray-50 border rounded-xl" /></div><div><label className="block text-xs font-bold text-gray-500 mb-1">MITRA PENERIMA</label><input type="text" required value={formData.target} onChange={(e) => setFormData({ ...formData, target: e.target.value })} className="w-full px-4 py-2.5 bg-gray-50 border rounded-xl" /></div><button type="submit" className="w-full py-3 bg-[#1A361D] text-white rounded-xl font-bold flex justify-center items-center gap-2">Simpan Donasi</button></form></div></div>
+                <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-[#0B1528]/80 backdrop-blur-md">
+                    <div className="bg-[#1C1C24] w-full max-w-sm rounded-[32px] shadow-2xl overflow-hidden border border-white/10">
+                        <div className="flex items-center justify-between p-6 border-b border-white/5"><h3 className="font-black text-white flex items-center gap-2"><HeartHandshake size={20} className="text-[#A7D189]" /> Catat Donasi</h3><button onClick={() => setIsFormOpen(false)}><X size={22} className="text-gray-500 hover:text-white transition-colors" /></button></div>
+                        <form onSubmit={handleSubmitDonasi} className="p-6 space-y-6">
+                            <div><label className="block text-[10px] font-bold text-gray-400 mb-2 tracking-widest uppercase">Pilih Bahan</label><select required value={formData.idBahan} onChange={(e) => setFormData({ ...formData, idBahan: e.target.value })} className="w-full px-4 py-4 bg-[#252530] border border-white/5 text-white rounded-2xl text-sm outline-none focus:ring-1 focus:ring-[#A7D189]"><option value="" disabled>-- Pilih Bahan --</option>{globalInventory.map(item => <option key={item.id} value={item.id}>{item.nama} (Stok: {item.sisa})</option>)}</select></div>
+                            <div><label className="block text-[10px] font-bold text-gray-400 mb-2 tracking-widest uppercase">Jumlah (Maks: {selectedBahanDetail?.sisa || 0})</label><input type="number" step="0.1" required value={formData.jumlah} onChange={(e) => setFormData({ ...formData, jumlah: e.target.value })} className="w-full px-5 py-4 bg-[#252530] border border-white/5 text-white rounded-2xl text-sm outline-none focus:ring-1 focus:ring-[#A7D189]" placeholder="0.0" /></div>
+                            <div><label className="block text-[10px] font-bold text-gray-400 mb-2 tracking-widest uppercase">Mitra Penerima</label><input type="text" required value={formData.target} onChange={(e) => setFormData({ ...formData, target: e.target.value })} className="w-full px-5 py-4 bg-[#252530] border border-white/5 text-white rounded-2xl text-sm outline-none focus:ring-1 focus:ring-[#A7D189]" placeholder="Nama Lembaga/Panti" /></div>
+                            <button type="submit" className="w-full mt-2 py-4 bg-[#A7D189] text-[#13131A] rounded-2xl font-black flex justify-center items-center gap-2 hover:bg-[#95C276] shadow-lg shadow-[#A7D189]/20 transition-all">Simpan Donasi</button>
+                        </form>
+                    </div>
+                </div>
             )}
 
-            {/* CUSTOM ALERT BOX: ERROR VALIDASI */}
+            {/* CUSTOM ALERT BOX ERROR */}
             {errorMsg && (
-                <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-gray-900/60 backdrop-blur-sm animate-fade-in">
-                    <div className="bg-white w-full max-w-sm rounded-3xl shadow-2xl p-6 text-center animate-slide-down">
-                        <div className="w-16 h-16 bg-red-50 text-red-500 rounded-full flex items-center justify-center mx-auto mb-4">
-                            <AlertTriangle size={32} />
-                        </div>
-                        <h3 className="font-bold text-gray-800 text-xl mb-2">Peringatan</h3>
-                        <p className="text-gray-500 text-sm mb-6 leading-relaxed">
-                            {errorMsg}
-                        </p>
-                        <button onClick={() => setErrorMsg('')} className="w-full py-3 bg-gray-100 text-gray-700 rounded-xl font-bold hover:bg-gray-200 transition-colors">
-                            Tutup
-                        </button>
-                    </div>
-                </div>
+                <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-[#0B1528]/80 backdrop-blur-md animate-fade-in"><div className="bg-[#1C1C24] w-full max-w-sm rounded-[32px] shadow-2xl p-8 text-center border border-white/10"><div className="w-16 h-16 bg-red-500/10 text-red-500 rounded-[20px] flex items-center justify-center mx-auto mb-5 border border-red-500/20"><AlertTriangle size={32} /></div><h3 className="font-black text-white text-xl mb-2">Peringatan</h3><p className="text-gray-400 text-sm mb-8 font-medium">{errorMsg}</p><button onClick={() => setErrorMsg('')} className="w-full py-4 bg-[#252530] text-gray-300 rounded-2xl font-bold hover:bg-white/10 transition-colors">Tutup</button></div></div>
             )}
 
-            {/* CUSTOM ALERT BOX: KONFIRMASI HAPUS RIWAYAT DONASI */}
+            {/* CUSTOM ALERT BOX HAPUS */}
             {isConfirmModalOpen && (
-                <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-gray-900/60 backdrop-blur-sm animate-fade-in">
-                    <div className="bg-white w-full max-w-sm rounded-3xl shadow-2xl p-6 text-center animate-slide-down">
-                        <div className="w-14 h-16 bg-red-50 text-red-500 rounded-full flex items-center justify-center mx-auto mb-4">
-                            <AlertTriangle size={32} />
-                        </div>
-                        <h3 className="font-bold text-gray-800 text-xl mb-2">Hapus Riwayat Donasi?</h3>
-                        <p className="text-gray-500 text-sm mb-6 leading-relaxed">
-                            Data catatan ini akan dihapus dari riwayat donasi sistem secara permanen.
-                        </p>
-                        <div className="flex gap-3">
-                            <button onClick={() => { setIsConfirmModalOpen(false); setIdDonasiToDelete(null); }} className="flex-1 py-3 bg-gray-100 text-gray-700 rounded-xl font-bold hover:bg-gray-200 transition-colors">Batal</button>
-                            <button onClick={executeDeleteDonasi} className="flex-1 py-3 bg-red-600 text-white rounded-xl font-bold hover:bg-red-700 transition-colors shadow-md">Ya, Hapus</button>
-                        </div>
-                    </div>
-                </div>
+                <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-[#0B1528]/80 backdrop-blur-md animate-fade-in"><div className="bg-[#1C1C24] w-full max-w-sm rounded-[32px] shadow-2xl p-8 text-center border border-white/10"><div className="w-16 h-16 bg-red-500/10 text-red-500 rounded-[20px] flex items-center justify-center mx-auto mb-5 border border-red-500/20"><AlertTriangle size={32} /></div><h3 className="font-black text-white text-xl mb-2">Hapus Riwayat?</h3><p className="text-gray-400 text-sm mb-8 font-medium">Data catatan ini akan dihapus dari riwayat sistem secara permanen.</p><div className="flex gap-3"><button onClick={() => { setIsConfirmModalOpen(false); setIdDonasiToDelete(null); }} className="flex-1 py-4 bg-[#252530] text-gray-300 rounded-2xl font-bold hover:bg-white/10 transition-colors">Batal</button><button onClick={executeDeleteDonasi} className="flex-1 py-4 bg-red-500 text-white rounded-2xl font-bold hover:bg-red-600 transition-colors shadow-lg shadow-red-500/20">Ya, Hapus</button></div></div></div>
             )}
 
-            {/* TOAST SUCCESS NOTIFICATION */}
             <ToastNotification isVisible={isSuccess} message={successMsg} />
         </div>
     );
