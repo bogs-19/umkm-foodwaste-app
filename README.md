@@ -74,19 +74,21 @@ If you wish to run this project locally, explore the codebase, or contribute, fo
 1. **Clone the repository:**
    ```bash
    git clone https://github.com/bogs-19/umkm-foodwaste-app.git
-Navigate to the directory:
-
+   
+2. **Navigate to the directory:**
+```bash
 cd umkm-foodwaste-app
-
+```
 
 3. **Install dependencies:**
-   ```bash
+```bash
 pnpm install
-Start the development server:
+```
 
-Bash
+4. **Start the development server:**
+```bash
 pnpm run dev
-
+```
 ---
 
 ## 🎨 Design Philosophy
