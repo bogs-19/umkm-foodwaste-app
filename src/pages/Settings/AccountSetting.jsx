@@ -104,8 +104,12 @@ const AccountSetting = () => {
 
     // Handler 3: Eksekusi Keluar (Logout)
     const executeLogout = () => {
-        localStorage.removeItem('umkm_token');
-        navigate('/');
+        localStorage.removeItem('umkm_token'); // Hapus token auth
+        localStorage.removeItem('umkm_user');  // Hapus data info user (nama, email)
+        localStorage.removeItem('umkm_disisihkan'); // Opsional: Bersihkan cache briefing jika diperlukan
+        localStorage.removeItem('umkm_briefing_queue'); // Opsional: Bersihkan sisa antrean kartu
+
+        navigate('/'); // Tendang kembali ke halaman Login awal
     };
 
     return (

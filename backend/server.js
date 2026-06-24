@@ -21,6 +21,9 @@ app.get('/', (req, res) => {
 const authRoutes = require('./routes/authRoutes');
 app.use('/api/auth', authRoutes);
 
+const inventoryRoutes = require('./routes/inventoryRoutes');
+app.use('/api/inventory', inventoryRoutes);
+
 // 5. Menyalakan Mesin
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => {
