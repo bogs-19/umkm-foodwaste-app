@@ -50,3 +50,46 @@ exports.loginUser = async (req, res) => {
         res.status(500).json({ message: "Terjadi kesalahan server." });
     }
 };
+
+exports.updateProfile = async (req, res) => {
+    try {
+        const { name, email } = req.body;
+        // Cari user berdasarkan ID yang didapat dari JWT (req.user.id)
+        const updatedUser = await User.findByIdAndUpdate(
+            req.user.id,
+            { name, email },
+            { new: true } // Kembalikan data yang baru
+        );
+
+        res.status(200).json({ message: "Profil diperbarui", user: { id: updatedUser._id, name: updatedUser.name, email: updatedUser.email } });
+    } catch (error) {
+        res.status(500).json({ message: "Terjadi kesalahan server saat update profil." });
+    }
+};
+
+// 4. Logika Update Password (Bcrypt)
+exports.updatePassword = async (req, res) => {
+    try {
+        const { oldPassword, newPassword } = req.body;
+
+        // Cari user di database
+        const user = await User.findById(req.user.id);
+        if (!user) return res.status(404).json({ message: "User tidak ditemukan!" });
+
+        // Bandingkan password lama dengan hash di database
+        const isMatch = await bcrypt.compare(oldPassword, user.password);
+        if (!isMatch) return res.status(401).json({ message: "Kata sandi saat ini (lama) salah!" });
+
+        // Enkripsi password baru
+        const salt = await bcrypt.genSalt(10);
+        const hashedPassword = await bcrypt.hash(newPassword, salt);
+
+        // Simpan ke database
+        user.password = hashedPassword;
+        await user.save();
+
+        res.status(200).json({ message: "Kata sandi berhasil diperbarui dengan aman!" });
+    } catch (error) {
+        res.status(500).json({ message: "Terjadi kesalahan server." });
+    }
+};

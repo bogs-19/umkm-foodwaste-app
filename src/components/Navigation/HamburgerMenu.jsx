@@ -1,6 +1,7 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { X, Home, ScanLine, PieChart, LogOut, Package, Tag, HeartHandshake } from 'lucide-react';
+// 👇 PERHATIKAN BARIS INI: ShoppingCart sudah saya tambahkan
+import { X, Home, ScanLine, PieChart, LogOut, Package, Tag, HeartHandshake, ShoppingCart } from 'lucide-react';
 
 export const HamburgerMenu = ({ isOpen, onClose }) => {
     return (
@@ -34,6 +35,12 @@ export const HamburgerMenu = ({ isOpen, onClose }) => {
                     <Link to="/daftar-bahan" onClick={onClose} className="flex items-center gap-4 p-3 rounded-xl hover:bg-green-50 text-gray-700 hover:text-[#1A361D] font-medium transition-colors">
                         <Package size={22} /> Macam-macam Bahan
                     </Link>
+
+                    {/* Menu Daftar Belanja (Restock) yang baru ditambahkan */}
+                    <Link to="/restock" onClick={onClose} className="flex items-center gap-4 p-3 rounded-xl hover:bg-green-50 text-gray-700 hover:text-[#1A361D] font-medium transition-colors">
+                        <ShoppingCart size={22} /> Daftar Belanja (Restock)
+                    </Link>
+
                     <Link to="/promo" onClick={onClose} className="flex items-center gap-4 p-3 rounded-xl hover:bg-green-50 text-gray-700 hover:text-[#1A361D] font-medium transition-colors">
                         <Tag size={22} /> Bahan Dipromosikan
                     </Link>

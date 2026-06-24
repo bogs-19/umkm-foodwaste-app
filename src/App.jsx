@@ -10,6 +10,7 @@ import RiwayatAksi from './pages/Aksi/RiwayatAksi';
 import KatalogDonasi from './pages/Aksi/KatalogDonasi';
 import AccountSetting from './pages/Settings/AccountSetting';
 import DetailBahan from './pages/Bahan/DetailBahan';
+import BarangRestock from './pages/Bahan/BarangRestock';
 
 function App() {
   return (
@@ -17,20 +18,29 @@ function App() {
       <Routes>
         <Route path="/" element={<Login />} />
 
-        {/* Rute yang dibungkus oleh MainLayout */}
+        {/* Semua Rute di Bawah Ini Dibungkus MainLayout (TopBar & Navigasi) */}
         <Route element={<MainLayout />}>
-          {/* Rute lama... */}
+
           <Route path="/dashboard" element={<Dashboard />} />
           <Route path="/briefing" element={<BriefingPagi />} />
 
-          {/* Rute Baru yang sudah dikoreksi */}
+          {/* Rute Manajemen Bahan */}
           <Route path="/daftar-bahan" element={<DaftarBahan />} />
-          <Route path="/promo" element={<RiwayatAksi />} />
+          <Route path="/restock" element={<BarangRestock />} />
+          <Route path="/bahan/:id" element={<DetailBahan />} />
+
+          {/* RUTE PROMO YANG SUDAH DIPERBAIKI (TIDAK ADA DUPLIKAT LAGI) */}
+          <Route path="/riwayat-promo" element={<RiwayatAksi />} /> {/* Tampilan Riwayat (Jika masih dipakai) */}
+
+          {/* Ini adalah file EksekusiPromo.jsx yang punya 2 mode (List & Editor) */}
+          <Route path="/promo" element={<EksekusiPromo />} />
+          <Route path="/promo/:id" element={<EksekusiPromo />} />
+
+          {/* Rute Lainnya */}
           <Route path="/donasi" element={<KatalogDonasi />} />
           <Route path="/statistik" element={<LaporanStatistik />} />
-          <Route path="/eksekusi-promo" element={<EksekusiPromo />} />
           <Route path="/settings" element={<AccountSetting />} />
-          <Route path="/bahan/:id" element={<DetailBahan />} />
+
         </Route>
       </Routes>
     </Router>

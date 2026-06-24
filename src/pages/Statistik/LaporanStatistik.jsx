@@ -1,7 +1,6 @@
 import React from 'react';
 import { Download, TrendingUp, TrendingDown, ArrowLeft } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
-// Import komponen Chart.js
 import {
     Chart as ChartJS,
     CategoryScale,
@@ -13,7 +12,6 @@ import {
 } from 'chart.js';
 import { Bar } from 'react-chartjs-2';
 
-// Registrasi elemen Chart.js
 ChartJS.register(
     CategoryScale,
     LinearScale,
@@ -26,49 +24,43 @@ ChartJS.register(
 const LaporanStatistik = () => {
     const navigate = useNavigate();
 
-    // Fungsi sederhana untuk Download PDF (Menggunakan fitur Print Browser)
     const handleDownloadPDF = () => {
         window.print();
     };
 
-    // Konfigurasi Visual Grafik
     const chartOptions = {
         responsive: true,
         plugins: {
             legend: { position: 'bottom' },
-            title: {
-                display: false,
-            },
+            title: { display: false },
         },
         scales: {
             y: { beginAtZero: true }
         }
     };
 
-    // Data Dummy untuk Grafik Batang
     const chartData = {
         labels: ['Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'Sabtu', 'Minggu'],
         datasets: [
             {
                 label: 'Bahan Diselamatkan (kg)',
                 data: [12, 19, 15, 22, 28, 35, 40],
-                backgroundColor: '#A7D189', // Hijau terang
+                backgroundColor: '#A7D189', 
                 borderRadius: 4,
             },
             {
                 label: 'Bahan Terbuang (kg)',
                 data: [5, 2, 4, 1, 0, 2, 1],
-                backgroundColor: '#EF4444', // Merah alert
+                backgroundColor: '#EF4444', 
                 borderRadius: 4,
             },
         ],
     };
 
     return (
-        // Tambahkan class 'print:p-0' agar rapi saat diekspor ke PDF
         <div className="flex flex-col h-full w-full max-w-4xl mx-auto pb-10 print:bg-white print:p-0">
 
-            {/* Header Halaman (Disembunyikan saat Export PDF) */}
+            {/* Header Halaman */}
             <div className="flex items-center justify-between mb-6 print:hidden">
                 <div className="flex items-center gap-4">
                     <button onClick={() => navigate(-1)} className="p-2 bg-white rounded-full shadow-sm hover:bg-gray-50 transition-colors">
@@ -77,7 +69,6 @@ const LaporanStatistik = () => {
                     <h2 className="text-2xl font-bold text-gray-800">Laporan & Statistik</h2>
                 </div>
 
-                {/* Tombol Export PDF */}
                 <button
                     onClick={handleDownloadPDF}
                     className="flex items-center gap-2 bg-[#0B1528] text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-gray-800 transition-colors shadow-md"
@@ -87,14 +78,14 @@ const LaporanStatistik = () => {
                 </button>
             </div>
 
-            {/* Judul Dokumen (Hanya muncul saat di-print/export) */}
+            {/* Judul Dokumen */}
             <div className="hidden print:block text-center mb-8">
                 <h1 className="text-3xl font-bold text-gray-900">Laporan Food Waste UMKM</h1>
                 <p className="text-gray-500">Periode: Minggu Terakhir</p>
                 <hr className="mt-4 border-gray-300" />
             </div>
 
-            {/* Ringkasan Angka (Summary Cards) */}
+            {/* Ringkasan Angka */}
             <div className="grid grid-cols-2 gap-4 mb-6">
                 <div className="bg-white p-5 rounded-2xl shadow-sm border border-gray-100 print:shadow-none print:border-gray-300">
                     <div className="flex justify-between items-start">
@@ -127,7 +118,7 @@ const LaporanStatistik = () => {
                 </div>
             </div>
 
-            {/* Area Grafik Chart.js */}
+            {/* Area Grafik Chart.js (SELALU MUNCUL PERMANEN) */}
             <div className="bg-white p-6 rounded-2xl shadow-sm border border-gray-100 print:shadow-none print:border-gray-300">
                 <h3 className="text-lg font-bold text-gray-800 mb-6">Grafik Efisiensi Inventaris (7 Hari Terakhir)</h3>
                 <div className="w-full h-[300px] flex justify-center">
