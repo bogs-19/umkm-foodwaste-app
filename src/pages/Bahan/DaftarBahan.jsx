@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Search, Plus, ArrowLeft, Trash2, X, CheckCircle2 } from 'lucide-react';
+import { Search, Plus, ArrowLeft, Trash2, X, CheckCircle2, UploadCloud, Image as ImageIcon } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { dummyInventory } from '../../data/dummyInventory';
 import { BahanCard } from '../../components/Cards/BahanCard';
@@ -10,12 +10,14 @@ const DaftarBahan = () => {
     const [inventory, setInventory] = useState([]);
     const [isAddModalOpen, setIsAddModalOpen] = useState(false);
 
+    // STATE BARU: Ditambahkan 'gambarPreview' untuk menampung Base64 dari foto yang diupload
     const [newBahan, setNewBahan] = useState({
         nama: '',
         sisa: '',
         satuan: 'kg',
         sisaWaktu: 'Aman / Tidak Basi',
-        status: 'Aman'
+        status: 'Aman',
+        gambarPreview: ''
     });
 
     useEffect(() => {
@@ -36,15 +38,35 @@ const DaftarBahan = () => {
         }
     };
 
+    // FUNGSI BARU: Menangani Upload Foto & Konversi ke Base64
+    const handleImageUpload = (e) => {
+        const file = e.target.files[0];
+        if (file) {
+            // Validasi ukuran sederhana (Maks 2MB agar localstorage tidak cepat penuh)
+            if (file.size > 2 * 1024 * 1024) {
+                alert("Ukuran gambar terlalu besar. Maksimal 2MB ya!");
+                return;
+            }
+
+            const reader = new FileReader();
+            reader.onloadend = () => {
+                // reader.result berisi string Base64 dari gambar
+                setNewBahan({ ...newBahan, gambarPreview: reader.result });
+            };
+            reader.readAsDataURL(file);
+        }
+    };
+
     const handleAddBahan = (e) => {
         e.preventDefault();
         const dataBaru = {
-            id: Date.now(),
+            id: Date.now(), // ID Unik
             nama: newBahan.nama,
             sisa: `${newBahan.sisa} ${newBahan.satuan}`,
             sisaWaktu: newBahan.sisaWaktu,
             status: newBahan.status,
-            gambar: `https://placehold.co/400x300/e2e8f0/475569?text=${encodeURIComponent(newBahan.nama)}`
+            // LOGIKA GAMBAR: Pakai gambar upload user. Jika tidak ada, panggil placeholder.
+            gambar: newBahan.gambarPreview || `https://placehold.co/400x300/e2e8f0/475569?text=${encodeURIComponent(newBahan.nama)}`
         };
 
         const updatedInventory = [dataBaru, ...inventory];
@@ -52,7 +74,8 @@ const DaftarBahan = () => {
         localStorage.setItem('umkm_inventory', JSON.stringify(updatedInventory));
 
         setIsAddModalOpen(false);
-        setNewBahan({ nama: '', sisa: '', satuan: 'kg', sisaWaktu: 'Aman / Tidak Basi', status: 'Aman' });
+        // Reset form termasuk gambar
+        setNewBahan({ nama: '', sisa: '', satuan: 'kg', sisaWaktu: 'Aman / Tidak Basi', status: 'Aman', gambarPreview: '' });
     };
 
     const filteredBahan = inventory.filter(item =>
@@ -60,9 +83,9 @@ const DaftarBahan = () => {
     );
 
     return (
-        <div className="flex flex-col h-full w-full max-w-4xl mx-auto pb-24 relative">
+        <div className="flex flex-col h-full w-full max-w-4xl mx-auto pb-24 relative px-4">
 
-            <div className="flex items-center justify-between mb-6">
+            <div className="flex items-center justify-between mb-6 mt-6">
                 <div className="flex items-center gap-4">
                     <button onClick={() => navigate(-1)} className="p-2 bg-white rounded-full shadow-sm hover:bg-gray-50 transition-colors">
                         <ArrowLeft size={20} className="text-gray-700" />
@@ -84,7 +107,6 @@ const DaftarBahan = () => {
             <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
                 {filteredBahan.map((item) => (
                     <div key={item.id} className="relative group cursor-pointer">
-                        {/* Menambahkan stopPropagation agar tidak bertabrakan dengan tombol hapus */}
                         <div onClick={(e) => { e.stopPropagation(); navigate(`/bahan/${item.id}`); }}>
                             <BahanCard item={item} />
                         </div>
@@ -96,7 +118,7 @@ const DaftarBahan = () => {
             </div>
 
             {filteredBahan.length === 0 && (
-                <div className="text-center py-12 text-gray-400">
+                <div className="text-center py-12 text-gray-400 animate-fade-in">
                     <Search size={48} className="mx-auto mb-4 opacity-20" />
                     <p className="font-medium text-gray-500">Bahan tidak ditemukan.</p>
                 </div>
@@ -104,26 +126,56 @@ const DaftarBahan = () => {
 
             {isAddModalOpen && (
                 <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-gray-900/60 backdrop-blur-sm animate-fade-in overflow-y-auto">
-                    <div className="bg-white w-full max-w-sm rounded-2xl shadow-2xl overflow-hidden animate-slide-down my-8">
-                        <div className="flex items-center justify-between p-4 border-b border-gray-100 bg-gray-50">
-                            <h3 className="font-bold text-gray-800">Tambah Bahan Baku</h3>
-                            <button onClick={() => setIsAddModalOpen(false)} className="text-gray-400 hover:text-red-500"><X size={20} /></button>
+                    <div className="bg-white w-full max-w-sm rounded-3xl shadow-2xl overflow-hidden animate-slide-down my-8">
+                        <div className="flex items-center justify-between p-5 border-b border-gray-100 bg-gray-50">
+                            <h3 className="font-bold text-gray-800">Tambah Inventaris Baru</h3>
+                            <button onClick={() => setIsAddModalOpen(false)} className="text-gray-400 hover:text-red-500 bg-white p-1 rounded-full shadow-sm"><X size={20} /></button>
                         </div>
 
-                        <form onSubmit={handleAddBahan} className="p-5 space-y-4 max-h-[70vh] overflow-y-auto">
+                        <form onSubmit={handleAddBahan} className="p-6 space-y-5 max-h-[75vh] overflow-y-auto">
+
+                            {/* AREA UPLOAD FOTO (UI/UX MODERN) */}
                             <div>
-                                <label className="block text-xs font-bold text-gray-500 mb-1">NAMA BARANG</label>
-                                <input type="text" required value={newBahan.nama} onChange={(e) => setNewBahan({ ...newBahan, nama: e.target.value })} placeholder="Contoh: Gula Pasir" className="w-full px-4 py-2.5 bg-gray-50 border rounded-xl text-sm outline-none focus:ring-2 focus:ring-[#A7D189]" />
+                                <label className="block text-xs font-bold text-gray-500 mb-2">FOTO BARANG (OPSIONAL)</label>
+                                <div className="relative border-2 border-dashed border-gray-300 rounded-2xl bg-gray-50 p-4 text-center cursor-pointer hover:bg-green-50 hover:border-[#A7D189] transition-all group overflow-hidden h-36 flex flex-col justify-center items-center">
+                                    {/* Input file disembunyikan tapi menutupi seluruh area */}
+                                    <input
+                                        type="file"
+                                        accept="image/png, image/jpeg, image/webp"
+                                        onChange={handleImageUpload}
+                                        className="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10"
+                                    />
+
+                                    {newBahan.gambarPreview ? (
+                                        <>
+                                            <img src={newBahan.gambarPreview} alt="Preview" className="absolute inset-0 w-full h-full object-cover opacity-90 group-hover:opacity-40 transition-opacity" />
+                                            <div className="relative z-0 bg-black/50 text-white px-3 py-1.5 rounded-lg text-xs font-bold opacity-0 group-hover:opacity-100 transition-opacity flex items-center gap-1">
+                                                <ImageIcon size={14} /> Ganti Foto
+                                            </div>
+                                        </>
+                                    ) : (
+                                        <>
+                                            <UploadCloud size={32} className="text-gray-400 mb-2 group-hover:text-[#A7D189] transition-colors" />
+                                            <span className="text-sm font-medium text-gray-600 group-hover:text-[#1A361D]">Ketuk untuk Upload Foto</span>
+                                            <span className="text-[10px] text-gray-400 mt-1">Format: JPG, PNG (Maks 2MB)</span>
+                                        </>
+                                    )}
+                                </div>
                             </div>
 
-                            <div className="flex gap-2">
+                            <div>
+                                <label className="block text-xs font-bold text-gray-500 mb-1">NAMA BAHAN</label>
+                                <input type="text" required value={newBahan.nama} onChange={(e) => setNewBahan({ ...newBahan, nama: e.target.value })} placeholder="Contoh: Gula Pasir" className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl text-sm outline-none focus:ring-2 focus:ring-[#A7D189] transition-all" />
+                            </div>
+
+                            <div className="flex gap-3">
                                 <div className="flex-1">
                                     <label className="block text-xs font-bold text-gray-500 mb-1">JUMLAH STOK</label>
-                                    <input type="number" required step="0.1" value={newBahan.sisa} onChange={(e) => setNewBahan({ ...newBahan, sisa: e.target.value })} placeholder="Misal: 5" className="w-full px-4 py-2.5 bg-gray-50 border rounded-xl text-sm outline-none focus:ring-2 focus:ring-[#A7D189]" />
+                                    <input type="number" required step="0.1" value={newBahan.sisa} onChange={(e) => setNewBahan({ ...newBahan, sisa: e.target.value })} placeholder="Misal: 5" className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl text-sm outline-none focus:ring-2 focus:ring-[#A7D189] transition-all" />
                                 </div>
                                 <div className="w-1/3">
                                     <label className="block text-xs font-bold text-gray-500 mb-1">SATUAN</label>
-                                    <select value={newBahan.satuan} onChange={(e) => setNewBahan({ ...newBahan, satuan: e.target.value })} className="w-full px-2 py-2.5 bg-gray-50 border rounded-xl text-sm outline-none focus:ring-2 focus:ring-[#A7D189]">
+                                    <select value={newBahan.satuan} onChange={(e) => setNewBahan({ ...newBahan, satuan: e.target.value })} className="w-full px-3 py-3 bg-gray-50 border border-gray-200 rounded-xl text-sm outline-none focus:ring-2 focus:ring-[#A7D189] transition-all">
                                         <option value="kg">kg</option>
                                         <option value="gram">gram</option>
                                         <option value="Liter">Liter</option>
@@ -135,7 +187,7 @@ const DaftarBahan = () => {
 
                             <div>
                                 <label className="block text-xs font-bold text-gray-500 mb-1">STATUS STOK</label>
-                                <select value={newBahan.status} onChange={(e) => setNewBahan({ ...newBahan, status: e.target.value })} className="w-full px-4 py-2.5 bg-gray-50 border rounded-xl text-sm outline-none focus:ring-2 focus:ring-[#A7D189]">
+                                <select value={newBahan.status} onChange={(e) => setNewBahan({ ...newBahan, status: e.target.value })} className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl text-sm outline-none focus:ring-2 focus:ring-[#A7D189] transition-all">
                                     <option value="Aman">🟢 Aman</option>
                                     <option value="Kurang">🟡 Kurang (Perlu Restock)</option>
                                     <option value="Kritis">🔴 Kritis (Hampir Habis)</option>
@@ -144,7 +196,7 @@ const DaftarBahan = () => {
 
                             <div>
                                 <label className="block text-xs font-bold text-gray-500 mb-1">KONDISI BARANG</label>
-                                <select value={newBahan.sisaWaktu} onChange={(e) => setNewBahan({ ...newBahan, sisaWaktu: e.target.value })} className="w-full px-4 py-2.5 bg-gray-50 border rounded-xl text-sm outline-none focus:ring-2 focus:ring-[#A7D189]">
+                                <select value={newBahan.sisaWaktu} onChange={(e) => setNewBahan({ ...newBahan, sisaWaktu: e.target.value })} className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl text-sm outline-none focus:ring-2 focus:ring-[#A7D189] transition-all">
                                     <option value="Aman / Tidak Basi">Awet / Tidak Mudah Basi</option>
                                     <option value="7 Hari">Sisa 7 Hari Lagi</option>
                                     <option value="3 Hari">Sisa 3 Hari Lagi</option>
@@ -152,8 +204,8 @@ const DaftarBahan = () => {
                                 </select>
                             </div>
 
-                            <button type="submit" className="w-full mt-4 py-3 bg-[#1A361D] text-white rounded-xl font-bold flex justify-center gap-2 hover:bg-[#122614] shadow-md">
-                                <CheckCircle2 size={18} /> Simpan ke Inventaris
+                            <button type="submit" className="w-full mt-6 py-4 bg-[#1A361D] text-white rounded-xl font-bold flex justify-center gap-2 hover:bg-[#122614] shadow-md transition-all active:scale-95">
+                                <CheckCircle2 size={20} /> Simpan ke Gudang
                             </button>
                         </form>
                     </div>
@@ -163,4 +215,4 @@ const DaftarBahan = () => {
     );
 };
 
-export default DaftarBahan; 
+export default DaftarBahan;
